@@ -1,0 +1,12 @@
+# Ignore .env files in all folders
+**/.env
+
+# Node.js modules
+**/node_modules/
+
+# Build directories
+**/dist/
+**/build/
+
+# Log files
+**/*.log
