@@ -1,22 +1,21 @@
 import foodModel from "../models/foodModel.js";
-import fs from "fs";
+import multer from "multer";
 
+const storage = multer.memoryStorage(); 
+const upload = multer({ storage });
 
 // add food item
 
 const addFood = async(req, res) =>{
-    //let image_filename = req.file ? `${req.file.filename}` : '';
-    console.log("File path:", req.file?.path); // Debug: Log file path
-    let image_filename = req.file ? `${req.file.filename}` : 'D:/Project/food-del/frontend/src/assets/food_3.png';
-
-    const food = new foodModel({
-        name : req.body.name,
-        description : req.body.description,
-        price : req.body.price,
-        category : req.body.category,
-        image: image_filename
-    })
-    try{
+    try {
+        const imageBuffer = req.file ? req.file.buffer : null;
+        const food = new foodModel({
+            name : req.body.name,
+            description : req.body.description,
+            price : req.body.price,
+            category : req.body.category,
+            image: imageBuffer
+        })
         await food.save();
         res.json({success:true, message:"Food item added successfully"});
     }
@@ -44,16 +43,35 @@ const listFood = async (req,res) => {
 const removeFood = async (req,res) =>{
     try{
         const food = await foodModel.findById(req.body.id);
-        if(food.image){
-            fs.unlinkSync(`uploads/${food.image}`,()=>{})
 
+        if (food) {
             await foodModel.findByIdAndDelete(req.body.id);
-            res.json({success:true, message:"Food item removed successfully"});
+
+            res.json({ success: true, message: "Food item removed successfully" });
+        } else {
+            res.status(404).json({ success: false, message: "Food item not found" });
         }
     }catch(error){
-        console.log(error);
-        res.json({success:false, message:"Failed to remove food item"});
+        console.log("Error in removeFood:", error);
+        res.json({ success: false, message: "Failed to remove food item" });
     }
-}
+};
 
-export {addFood, listFood, removeFood}
+const getImage = async (req, res) => {
+    try {
+        const food = await foodModel.findById(req.params.id); // Fetch food item by ID
+        if (!food || !food.image) {
+            return res.status(404).json({ success: false, message: "Image not found" });
+        }
+
+        // Set the appropriate content type (can be image/jpeg, image/png, etc.)
+        res.setHeader('Content-Type', 'image/jpeg');
+
+        res.send(food.image);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Failed to fetch image" });
+    }
+};
+
+export {addFood, listFood, removeFood, getImage}

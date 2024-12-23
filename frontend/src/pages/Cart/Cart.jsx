@@ -2,11 +2,40 @@ import React from "react";
 import "./Cart.css";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const Cart = () => {
   const { cartItems, food_list, removeFromCart, getTotalCartAmount, url } =
     React.useContext(StoreContext);
 
   const navigate = useNavigate();
+  const [imageUrls, setImageUrls] = React.useState({}); // Store image URLs for each food item
+
+  React.useEffect(() => {
+    food_list.forEach((item) => {
+      if (item.image) {
+        fetchImage(item._id);
+      }
+    });
+  }, [food_list, url]);
+
+  // Function to fetch and set the image URL
+  const fetchImage = async (foodId) => {
+    try {
+      const response = await fetch(`${url}/api/food/${foodId}/image`); // Fetch the image from the backend
+      if (response.ok) {
+        const imageBlob = await response.blob(); // Convert to a Blob object
+        const imageObjectUrl = URL.createObjectURL(imageBlob); // Create an object URL
+        setImageUrls((prevUrls) => ({
+          ...prevUrls,
+          [foodId]: imageObjectUrl,
+        }));
+      } else {
+        console.error("Failed to fetch image");
+      }
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  };
 
   return (
     <div className="cart">
@@ -26,7 +55,12 @@ const Cart = () => {
             return (
               <div key={item._id}>
                 <div className="cart-items-title cart-items-item">
-                  <img src={url + "/images/" + item.image} alt="" />
+                  {/* Conditionally render the image */}
+                  {imageUrls[item._id] ? (
+                    <img src={imageUrls[item._id]} alt={item.name} />
+                  ) : (
+                    <p>Loading...</p>
+                  )}
                   <p>{item.name}</p>
                   <p>${item.price}</p>
                   <p>{cartItems[item._id]}</p>

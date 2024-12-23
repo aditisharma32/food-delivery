@@ -15,7 +15,8 @@ const port = process.env.PORT || 4000;
 
 // middleware
 
-app.use(express.json());
+//app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(cors());
 
 
@@ -26,7 +27,6 @@ connectDB()
 // api endpoints
 
 app.use("/api/food", foodRouter);
-app.use("/images", express.static('uploads'))
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
@@ -41,8 +41,3 @@ app.listen(port, () => {
     const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
     console.log(`Server is running on ${baseUrl}`);
 });
-
-
-
-
-//mongodb+srv://chandrasheeltemp:201805@cluster0.c5now.mongodb.net/?
