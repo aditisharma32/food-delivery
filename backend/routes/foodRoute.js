@@ -23,6 +23,6 @@ foodRouter.get("/list", listFood);
 
 foodRouter.post("/remove", removeFood);
 
-foodRouter.get("/:id/image", getImage);
+foodRouter.get('/image/:imageUrl', getImage);
 
 export default foodRouter;

@@ -3,35 +3,32 @@ import "./Cart.css";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 const Cart = () => {
   const { cartItems, food_list, removeFromCart, getTotalCartAmount, url } =
     React.useContext(StoreContext);
 
   const navigate = useNavigate();
-  const [imageUrls, setImageUrls] = React.useState({}); // Store image URLs for each food item
+  const [imageUrls, setImageUrls] = React.useState({});
 
   React.useEffect(() => {
     food_list.forEach((item) => {
       if (item.image) {
-        fetchImage(item._id);
+        fetchImage(item.image);
       }
     });
   }, [food_list, url]);
-
-  // Function to fetch and set the image URL
-  const fetchImage = async (foodId) => {
+  const fetchImage = async (image) => {
     try {
-      const response = await fetch(`${url}/api/food/${foodId}/image`); // Fetch the image from the backend
-      if (response.ok) {
-        const imageBlob = await response.blob(); // Convert to a Blob object
-        const imageObjectUrl = URL.createObjectURL(imageBlob); // Create an object URL
-        setImageUrls((prevUrls) => ({
-          ...prevUrls,
-          [foodId]: imageObjectUrl,
-        }));
-      } else {
-        console.error("Failed to fetch image");
-      }
+      const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
+        responseType: "blob",
+      });
+      const imageBlob = response.data;
+      const imageObjectUrl = URL.createObjectURL(imageBlob);
+      setImageUrls((prevUrls) => ({
+        ...prevUrls,
+        [image]: imageObjectUrl,
+      }));
     } catch (error) {
       console.error("Error fetching image:", error);
     }
@@ -55,12 +52,7 @@ const Cart = () => {
             return (
               <div key={item._id}>
                 <div className="cart-items-title cart-items-item">
-                  {/* Conditionally render the image */}
-                  {imageUrls[item._id] ? (
-                    <img src={imageUrls[item._id]} alt={item.name} />
-                  ) : (
-                    <p>Loading...</p>
-                  )}
+                  <img src={imageUrls[item.image]} alt="" />
                   <p>{item.name}</p>
                   <p>${item.price}</p>
                   <p>{cartItems[item._id]}</p>

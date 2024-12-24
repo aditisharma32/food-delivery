@@ -54,16 +54,47 @@ npm install
 
 ```
 
+### 2. Google Drive API Integration with Firebase
+
+#### Steps to Set Up
+
+1. **Create Service Account in Firebase Console**  
+   - Go to the Firebase Console, navigate to **Project Settings** > **Service Accounts** and create a service account.
+
+2. **Enable Google Drive API in the Google Cloud Console**  
+   - Visit [Google Cloud Console](https://console.cloud.google.com/), go to **APIs & Services** > **Library**, search for Google Drive API, and enable it.
+
+3. **Generate and Download Credentials (JSON Key) for the Service Account**  
+   - In the Google Cloud Console, navigate to **IAM & Admin** > **Service Accounts**, and download the private key (JSON file) for your service account.
+
+4. **Set Up Authentication in Your Application Using the Service Account Credentials**  
+   - Use the `googleapis` library in your app to authenticate with the service account credentials.
+
+5. **Use Google Drive API to Upload and Manage Media Files**  
+   - Utilize the Google Drive API to upload, list, and manage media files (e.g., images) stored on your Google Drive.
+
+
 ### 2. Configure Environment Variables
 For the backend, create a .env file in the root of the backend directory and add the following:
 
 ```bash  
 JWT_SECRET=<your-jwt-secret>  
-MONGO_URI=<your-mongodb-connection-string>  
+MONGO_URI=<your-mongodb-connection-string>
+GOOGLE_TYPE=<use-private-key.json-file>
+GOOGLE_PROJECT_ID=<use-private-key.json-file>
+GOOGLE_PRIVATE_KEY_ID=<use-private-key.json-file>
+GOOGLE_PRIVATE_KEY=<use-private-key.json-file>
+GOOGLE_CLIENT_ID=<use-private-key.json-file>
+GOOGLE_AUTH_URI=<use-private-key.json-file>
+GOOGLE_TOKEN_URI=<use-private-key.json-file>
+GOOGLE_AUTH_PROVIDER_CERT_URL=<use-private-key.json-file>
+GOOGLE_CLIENT_CERT_URL=<use-private-key.json-file>
+GOOGLE_UNIVERSE_DOMAIN=<use-private-key.json-file>
+
 
 ```
 
-### 3. Run the Projects
+### 4. Run the Projects
 To run the application locally, follow these steps:  
 
 - **Frontend**:  

@@ -1,42 +1,36 @@
 import React from 'react'
 import './FoodItem.css'
 import { assets } from '../../assets/assets'
-import { StoreContext } from '../../context/StoreContext' // Adjust the path as necessary
+import { StoreContext } from '../../context/StoreContext'
+import axios from "axios";
 
-const FoodItem = ({id,name,price, description,image}) => {
+const FoodItem = ({ id, name, price, description, image }) => {
+  const { cartItems, addToCart, removeFromCart, url } = React.useContext(StoreContext);
+  
+  const [imageUrl, setImageUrl] = React.useState(null);
 
-    const {cartItems,addToCart,removeFromCart,url} = React.useContext(StoreContext);
-    
-    const [imageUrl, setImageUrl] = React.useState(null);  // To store the image URL
-    
-    React.useEffect(() => {
-        const fetchImage = async () => {
-            try {
-                const response = await fetch(`${url}/api/food/${id}/image`);  // Fetch the image from the backend
-                if (response.ok) {
-                    const imageBlob = await response.blob();  // Convert to a Blob object
-                    const imageObjectUrl = URL.createObjectURL(imageBlob);  // Create an object URL
-                    setImageUrl(imageObjectUrl);  // Set the object URL as the image source
-                } else {
-                    console.error("Failed to fetch image");
-                }
-            } catch (error) {
-                console.error("Error fetching image:", error);
-            }
-        };
-        
-        fetchImage();
-    }, [id, url]);  // Re-run when `id` or `url` changes
+React.useEffect(() => {
+  const fetchImage = async () => {
+    try {
+      const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
+        responseType: "blob",
+      });
+      const imageBlob = response.data;
+      const imageObjectUrl = URL.createObjectURL(imageBlob);
+      setImageUrl(imageObjectUrl);
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  };
+
+  fetchImage();
+}, [id, image, url]);
+
 
   return (
     <div className='food-item'>
       <div className="food-item-img-container">
-        {imageUrl ? (
-          <img className='food-item-image' src={imageUrl} alt={name} />
-        ) : (
-          <p>Loading image...</p>  // Show loading text if the image is still being fetched
-        )}
-        
+        <img className='food-item-image' src={imageUrl} alt="" />
         {!cartItems[id]
             ?<img src={assets.add_icon_white} alt="" className='add' onClick={()=>addToCart(id)}/>
             :<div className='food-item-counter'>

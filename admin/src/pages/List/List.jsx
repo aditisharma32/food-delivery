@@ -6,30 +6,66 @@ import { toast } from "react-toastify";
 const List = ({url}) => {
 
   const [list, setList] = React.useState([]);
+  const [imageUrl, setImageUrl] = React.useState({});
 
   const fetchList = async () => {
-    const response = await axios.get(`${url}/api/food/list`);
-    if (response.data.success) {
-      setList(response.data.data);
-    } else {
-      toast.error("Error");
+    try {
+      const response = await axios.get(`${url}/api/food/list`);
+      if (response.data.success) {
+        setList(response.data.data);
+      } else {
+        toast.error("Error fetching food list");
+      }
+    } catch (error) {
+      toast.error("Error while fetching the food list");
+      console.error("Fetch List Error:", error);
     }
   };
 
-  const removeFood = async(foodId) =>{
-    const response = await axios.post(`${url}/api/food/remove`, {id:foodId});
-    await fetchList();
-    if(response.data.success){
-      toast.success(response.data.message)
+  const fetchImage = async (image) => {
+    try {
+      const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
+        responseType: "blob",
+      });
+      const imageBlob = response.data;
+      const imageObjectUrl = URL.createObjectURL(imageBlob);
+      setImageUrl((prevUrl) => ({
+        ...prevUrl,
+        [image]: imageObjectUrl,
+      }));
+    } catch (error) {
+      console.error("Error fetching image:", error);
     }
-    else{
-      toast.error(response.data.message)
+  };
+
+  const removeFood = async (foodId) => {
+    try {
+      const response = await axios.post(`${url}/api/food/remove`, {id:foodId});
+      if (response.data.success) {
+        toast.success(response.data.message);
+        await fetchList();
+      }
+      else{
+        toast.error(response.data.message)
+      }
+    }
+    catch (error){
+      toast.error("Error while removing food item");
+      console.error("Remove Food Error:", error);
     }
   }
 
   useEffect(() => {
     fetchList();
   }, []);
+
+  useEffect(() => {
+    list.forEach((item) => {
+      if (item.image) {
+        fetchImage(item.image);
+      }
+    });
+  }, [list]);
 
   return (
     <div className="list add flex-col">
@@ -45,7 +81,7 @@ const List = ({url}) => {
         {list.map((item, index) => {
           return (
             <div key={index} className="list-table-format">
-              <img src={`${url}/images/` + item.image} alt="" />
+              <img src={imageUrl[item.image]} alt="" />
               <p>{item.name}</p>
               <p>{item.category}</p>
               <p>${item.price}</p>
