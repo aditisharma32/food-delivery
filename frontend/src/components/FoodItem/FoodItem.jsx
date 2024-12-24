@@ -7,7 +7,7 @@ import axios from "axios";
 const FoodItem = ({ id, name, price, description, image }) => {
   const { cartItems, addToCart, removeFromCart, url } = React.useContext(StoreContext);
   
-  const [imageUrl, setImageUrl] = React.useState(null);
+  const [imageUrl, setImageUrl] = React.useState({});
 
 React.useEffect(() => {
   const fetchImage = async () => {
@@ -30,7 +30,11 @@ React.useEffect(() => {
   return (
     <div className='food-item'>
       <div className="food-item-img-container">
-        <img className='food-item-image' src={imageUrl} alt="" />
+       {imageUrl ? (
+          <img className='food-item-image' src={imageUrl} alt="" />
+        ) : (
+          <p></p>
+        )}
         {!cartItems[id]
             ?<img src={assets.add_icon_white} alt="" className='add' onClick={()=>addToCart(id)}/>
             :<div className='food-item-counter'>
