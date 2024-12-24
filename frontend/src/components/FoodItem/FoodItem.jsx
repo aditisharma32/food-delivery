@@ -10,31 +10,35 @@ const FoodItem = ({ id, name, price, description, image }) => {
   const [imageUrl, setImageUrl] = React.useState({});
 
 React.useEffect(() => {
-  const fetchImage = async () => {
+  const fetchImage = async (image) => {
     try {
       const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
         responseType: "blob",
       });
       const imageBlob = response.data;
       const imageObjectUrl = URL.createObjectURL(imageBlob);
-      setImageUrl(imageObjectUrl);
+      setImageUrl((prevUrl) => ({
+        ...prevUrl,
+        [image]: imageObjectUrl,
+      }));
     } catch (error) {
       console.error("Error fetching image:", error);
     }
   };
 
-  fetchImage();
+  fetchImage(image);
 }, [id, image, url]);
 
 
   return (
     <div className='food-item'>
       <div className="food-item-img-container">
-       {imageUrl ? (
-          <img className='food-item-image' src={imageUrl} alt="" />
+        {imageUrl && imageUrl[image] ? (
+          <img className='food-item-image' src={imageUrl[image]} alt="Food Item" />
         ) : (
-          <p></p>
+          <p>Image not available</p>
         )}
+
         {!cartItems[id]
             ?<img src={assets.add_icon_white} alt="" className='add' onClick={()=>addToCart(id)}/>
             :<div className='food-item-counter'>
