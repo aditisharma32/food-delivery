@@ -9,32 +9,39 @@ const FoodItem = ({ id, name, price, description, image }) => {
   
   const [imageUrl, setImageUrl] = React.useState({});
 
-React.useEffect(() => {
-  const fetchImage = async (image) => {
-    try {
-      const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
-        responseType: "blob",
-      });
-      const imageBlob = response.data;
-      const imageObjectUrl = URL.createObjectURL(imageBlob);
-      setImageUrl((prevUrl) => ({
-        ...prevUrl,
-        [image]: imageObjectUrl,
-      }));
-    } catch (error) {
-      console.error("Error fetching image:", error);
-    }
-  };
+  React.useEffect(() => {
+    const fetchImage = async (image) => {
+      if (!image) {
+        console.error("Image prop is undefined or null");
+        return;
+      }
 
-  fetchImage(image);
-}, [id, image, url]);
+      try {
+        const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
+          responseType: "blob",
+        });
+        const imageBlob = response.data;
+        const imageObjectUrl = URL.createObjectURL(imageBlob);
+        setImageUrl((prevUrl) => ({
+          ...prevUrl,
+          [image]: imageObjectUrl,
+        }));
+      } catch (error) {
+        console.error("Error fetching image:", error);
+      }
+    };
 
+    fetchImage(image);
+  }, [id, image, url]);
+
+  // Check if image URL is valid
+  const validImageUrl = imageUrl && imageUrl[image];
 
   return (
     <div className='food-item'>
       <div className="food-item-img-container">
-        {imageUrl && imageUrl[image] ? (
-          <img className='food-item-image' src={imageUrl[image]} alt="Food Item" />
+        {validImageUrl ? (
+          <img className='food-item-image' src={validImageUrl} alt="Food Item" />
         ) : (
           <p>Image not available</p>
         )}
