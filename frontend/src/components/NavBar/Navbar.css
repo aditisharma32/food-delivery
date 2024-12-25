@@ -134,3 +134,16 @@
     }
     
 }
+
+.navbar-profile .username-header{
+    font-size: 18px;
+    font-weight: bold;
+    color: tomato;
+    padding-bottom: 10px;
+    border-bottom: 2px solid tomato;
+    margin-bottom: 10px;
+}
+
+.nav-profile-dropdown li:hover .username-header{
+    color: tomato;
+}

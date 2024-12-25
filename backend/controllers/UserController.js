@@ -82,4 +82,24 @@ const registerUser = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser };
+const getUserData = async (req, res) => {
+  try {
+    const useId = req.body.userId
+
+    if (!useId) {
+      return res.status(401).json({ success: false, message: "Unauthorized access" });
+    }
+    const user = await userModel.findById(useId).select('name email');
+
+    if (!user) {
+      console.log("User not found");
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json({ success: true, message: "User data fetched successfully", userData: { name: user.name, email: user.email} });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export { loginUser, registerUser, getUserData };
