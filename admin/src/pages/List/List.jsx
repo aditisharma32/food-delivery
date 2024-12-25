@@ -3,10 +3,10 @@ import "./List.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const List = ({url}) => {
-
+const List = ({ url }) => {
   const [list, setList] = React.useState([]);
   const [imageUrl, setImageUrl] = React.useState({});
+  const [loading, setLoading] = React.useState(true);
 
   const fetchList = async () => {
     try {
@@ -24,36 +24,41 @@ const List = ({url}) => {
 
   const fetchImage = async (image) => {
     try {
-      const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
-        responseType: "blob",
-      });
+      const response = await axios.get(
+        `${url}/api/food/image/${encodeURIComponent(image)}`,
+        {
+          responseType: "blob",
+        }
+      );
       const imageBlob = response.data;
       const imageObjectUrl = URL.createObjectURL(imageBlob);
       setImageUrl((prevUrl) => ({
         ...prevUrl,
         [image]: imageObjectUrl,
       }));
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching image:", error);
+      setLoading(false);
     }
   };
 
   const removeFood = async (foodId) => {
     try {
-      const response = await axios.post(`${url}/api/food/remove`, {id:foodId});
+      const response = await axios.post(`${url}/api/food/remove`, {
+        id: foodId,
+      });
       if (response.data.success) {
         toast.success(response.data.message);
         await fetchList();
+      } else {
+        toast.error(response.data.message);
       }
-      else{
-        toast.error(response.data.message)
-      }
-    }
-    catch (error){
+    } catch (error) {
       toast.error("Error while removing food item");
       console.error("Remove Food Error:", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchList();
@@ -81,11 +86,21 @@ const List = ({url}) => {
         {list.map((item, index) => {
           return (
             <div key={index} className="list-table-format">
-              <img src={imageUrl[item.image]} alt="" />
+              <div className="loading-list-item-container">
+              {!loading ? (
+                <img src={imageUrl[item.image]} alt="" />
+              ) : (
+                
+                  <div className="loading-list-item"></div>
+                )}
+                </div>
+
               <p>{item.name}</p>
               <p>{item.category}</p>
               <p>${item.price}</p>
-              <p onClick={()=>removeFood(item._id)} className="cursor">X</p>
+              <p onClick={() => removeFood(item._id)} className="cursor">
+                X
+              </p>
             </div>
           );
         })}

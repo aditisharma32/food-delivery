@@ -5,11 +5,17 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Cart = () => {
-  const { cartItems, food_list = [], removeFromCart, getTotalCartAmount, url } =
-    React.useContext(StoreContext) || {}; // Default to an empty object to avoid destructuring null/undefined
+  const {
+    cartItems,
+    food_list = [],
+    removeFromCart,
+    getTotalCartAmount,
+    url,
+  } = React.useContext(StoreContext) || {}; // Default to an empty object to avoid destructuring null/undefined
 
   const navigate = useNavigate();
   const [imageUrls, setImageUrls] = React.useState({});
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (Array.isArray(food_list)) {
@@ -23,17 +29,22 @@ const Cart = () => {
 
   const fetchImage = async (image) => {
     try {
-      const response = await axios.get(`${url}/api/food/image/${encodeURIComponent(image)}`, {
-        responseType: "blob",
-      });
+      const response = await axios.get(
+        `${url}/api/food/image/${encodeURIComponent(image)}`,
+        {
+          responseType: "blob",
+        }
+      );
       const imageBlob = response.data;
       const imageObjectUrl = URL.createObjectURL(imageBlob);
       setImageUrls((prevUrls) => ({
         ...prevUrls,
         [image]: imageObjectUrl,
       }));
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching image:", error);
+      setLoading(false);
     }
   };
 
@@ -57,11 +68,18 @@ const Cart = () => {
               return (
                 <div key={item?._id || Math.random()}>
                   <div className="cart-items-title cart-items-item">
-                    <img
-                      src={imageUrls[item?.image] || ""}
-                      alt="Food Item"
-                      onError={(e) => (e.target.src = "default_image_url")} // Fallback to a default image
-                    />
+                    <div className="loading-cart-item-container">
+                      {loading ? (
+                        <div className="loading-cart-item"></div>
+                      ) : (
+                        <img
+                          src={imageUrls[item?.image] || ""}
+                          alt="Food Item"
+                          onError={(e) => (e.target.src = "default_image_url")} // Fallback to a default image
+                        />
+                      )}
+                    </div>
+
                     <p>{item?.name || "Unnamed Item"}</p>
                     <p>${item?.price ?? "N/A"}</p>
                     <p>{quantity}</p>
